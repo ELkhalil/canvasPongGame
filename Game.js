@@ -53,8 +53,7 @@ export class Game {
     this.ball.drawBall(ctx);
   }
 
-  update() {
-    /* Scoring Logic */
+  updateGameScores() {
     if (this.ball.x - this.ball.radius < 0) {
       this.rightPlayer.score++;
       this.ball.resetBall(this.width, this.height);
@@ -62,22 +61,32 @@ export class Game {
       this.leftPlayer.score++;
       this.ball.resetBall();
     }
+  }
+
+  autoAiControl() {
+    this.rightPlayer.y +=
+      (this.ball.y - (this.rightPlayer.y + this.rightPlayer.height / 2)) * 0.1;
+    if (this.rightPlayer.y < 0) {
+      this.rightPlayer.y = 0;
+    } else if (this.rightPlayer.y + this.rightPlayer.height > this.height) {
+      this.rightPlayer.y = this.height - this.rightPlayer.height;
+    }
+  }
+
+  update() {
+    /* Scoring Logic */
+    this.updateGameScores();
 
     /* ball velocity and move */
     this.ball.moveBall();
 
     /* let's make the right player follow the ball */
-    this.rightPlayer.y +=
-      (this.ball.y - (this.rightPlayer.y + this.rightPlayer.height / 2)) * 0.1;
+    this.autoAiControl();
 
     /* Ball Collision with the top and bottom of the world */
-    if (
-      this.ball.y - this.ball.radius < 0 ||
-      this.ball.y + this.ball.radius > this.height
-    ) {
-      this.ball.velocityY = -this.ball.velocityY;
-    }
-    // we check if the paddle hit the user or the com paddle
+    this.ball.ballTopAndBottomCollision(this.height);
+
+    /* we check if the paddle hit the user or the com paddle */
     let player =
       this.ball.x + this.ball.radius < this.width / 2
         ? this.leftPlayer
@@ -86,19 +95,13 @@ export class Game {
     if (this.ball.ballPlayerCollision(player)) {
       // we check where the ball hits the paddle
       let collidePoint = this.ball.y - (player.y + player.height / 2);
-
       collidePoint = collidePoint / (player.height / 2);
-
       let angleRad = (Math.PI / 4) * collidePoint;
-
       let direction = this.ball.x + this.ball.radius < this.width / 2 ? 1 : -1;
-
       this.ball.velocityX = direction * this.ball.speed * Math.cos(angleRad);
       this.ball.velocityY = this.ball.speed * Math.sin(angleRad);
-
       this.ball.speed += 0.1;
     }
-    // console.log(`x = ${this.ball.x}  y = ${this.ball.y}`);
   }
 
   startGame(ctx) {

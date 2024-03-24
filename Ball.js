@@ -5,7 +5,7 @@ export class Ball {
     this.radius = radius;
     this.velocityX = velocityX;
     this.velocityY = velocityY;
-    speed = speed;
+    this.speed = speed;
     this.color = color;
   }
 
@@ -23,6 +23,7 @@ export class Ball {
   }
 
   resetBall(width, height) {
+    console.log("resetBall");
     this.x = width / 2;
     this.y = height / 2;
     this.velocityX = -this.velocityX;
@@ -36,5 +37,11 @@ export class Ball {
       player.x + player.width > this.x - this.radius &&
       player.y + player.height > this.y - this.radius
     );
+  }
+
+  ballTopAndBottomCollision(gameHeight) {
+    if (this.y - this.radius < 0 || this.y + this.radius > gameHeight) {
+      this.velocityY = -this.velocityY;
+    }
   }
 }
